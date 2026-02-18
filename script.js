@@ -1,9 +1,28 @@
 /* ============================================
    Miraan Children & ENT Hospital — script.js
+   Mobile-optimized interactions
    ============================================ */
 
 (function () {
   'use strict';
+
+  /* ------------------------------------------
+     HELPERS — scroll lock for mobile
+     ------------------------------------------ */
+  var scrollPos = 0;
+
+  function lockScroll() {
+    scrollPos = window.pageYOffset;
+    document.body.classList.add('modal-open');
+    document.body.style.top = -scrollPos + 'px';
+  }
+
+  function unlockScroll() {
+    document.body.classList.remove('modal-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollPos);
+  }
+
 
   /* ------------------------------------------
      1. DEPARTMENT SWITCHER
@@ -61,31 +80,22 @@
     var dept = deptData[key];
     if (!dept) return;
 
-    // Update services
     servicesList.innerHTML = dept.services
-      .map(function (s) {
-        return '<li>' + s + '</li>';
-      })
+      .map(function (s) { return '<li>' + s + '</li>'; })
       .join('');
 
-    // Update hours
     hoursEl.textContent = dept.hours;
 
-    // Update visit list
     visitList.innerHTML = dept.visit
-      .map(function (v) {
-        return '<li>' + v + '</li>';
-      })
+      .map(function (v) { return '<li>' + v + '</li>'; })
       .join('');
 
-    // Update tab states
     tabBtns.forEach(function (btn) {
       var isActive = btn.getAttribute('data-dept') === key;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
 
-    // Update panel class for department-specific colors (pink for children, gold for ENT)
     deptPanel.className = 'dept-panel dept-' + key;
   }
 
@@ -95,7 +105,6 @@
     });
   });
 
-  // Initialize with "children" tab
   renderDept('children');
 
 
@@ -148,26 +157,23 @@
       var data = symptomData[key];
       if (!data) return;
 
-      // Toggle active button
-      symptomBtns.forEach(function (b) {
-        b.classList.remove('active');
-      });
+      symptomBtns.forEach(function (b) { b.classList.remove('active'); });
       btn.classList.add('active');
 
-      // Set urgency tag
       urgencyTag.textContent = data.label;
       urgencyTag.className = 'urgency-tag urgency-' + data.urgency;
-
-      // Set advice
       symptomAdvice.textContent = data.advice;
-
-      // Show result
       symptomResult.hidden = false;
 
       // Re-trigger animation
       symptomResult.style.animation = 'none';
       void symptomResult.offsetHeight;
       symptomResult.style.animation = '';
+
+      // Scroll result into view on mobile
+      setTimeout(function () {
+        symptomResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
     });
   });
 
@@ -180,7 +186,7 @@
   var modalSuccess = document.getElementById('modalSuccess');
   var apptForm = document.getElementById('apptForm');
 
-  // Open modal — any element with [data-open-modal] attribute
+  // Open modal — any element with [data-open-modal]
   document.addEventListener('click', function (e) {
     var trigger = e.target.closest('[data-open-modal]');
     if (trigger) {
@@ -189,42 +195,41 @@
     }
   });
 
-  // Close modal
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalDone').addEventListener('click', closeModal);
 
-  // Close on overlay click
+  // Close on overlay click (not on card itself)
   modal.addEventListener('click', function (e) {
     if (e.target === modal) closeModal();
   });
 
-  // Close on Escape key
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !modal.hidden) closeModal();
   });
 
   function openModal() {
-    // Reset to form state
     modalFormWrap.hidden = false;
     modalSuccess.hidden = true;
     apptForm.reset();
     clearErrors();
 
+    // Close mobile nav if open
+    closeNav();
+
     modal.hidden = false;
     void modal.offsetHeight;
     modal.classList.add('visible');
-    document.body.classList.add('modal-open');
+    lockScroll();
 
-    // Focus first input
     setTimeout(function () {
       var first = apptForm.querySelector('input, select');
       if (first) first.focus();
-    }, 100);
+    }, 350); /* Wait for slide-up animation */
   }
 
   function closeModal() {
     modal.classList.remove('visible');
-    document.body.classList.remove('modal-open');
+    unlockScroll();
     setTimeout(function () {
       modal.hidden = true;
     }, 300);
@@ -237,11 +242,9 @@
     var errEl = document.getElementById(
       'err' + name.charAt(0).toUpperCase() + name.slice(1)
     );
-
     if (!errEl) return true;
 
     var msg = '';
-
     if (input.required && !val) {
       msg = 'This field is required.';
     } else if (name === 'phone' && val && !/^[0-9]{10}$/.test(val)) {
@@ -266,27 +269,19 @@
     });
   }
 
-  // Real-time validation on blur
   apptForm.querySelectorAll('input, select').forEach(function (input) {
-    input.addEventListener('blur', function () {
-      validateField(input);
-    });
+    input.addEventListener('blur', function () { validateField(input); });
   });
 
-  // Form submit
   apptForm.addEventListener('submit', function (e) {
     e.preventDefault();
-
     var fields = apptForm.querySelectorAll('input[required], select[required]');
     var allValid = true;
-
     fields.forEach(function (input) {
       if (!validateField(input)) allValid = false;
     });
-
     if (!allValid) return;
 
-    // Simulate success (no backend)
     modalFormWrap.hidden = true;
     modalSuccess.hidden = false;
   });
@@ -303,71 +298,86 @@
     var nameInput = quickForm.querySelector('[name="name"]');
     var phoneInput = quickForm.querySelector('[name="phone"]');
     var concernInput = quickForm.querySelector('[name="concern"]');
-
     var valid = true;
 
     if (!nameInput.value.trim()) {
-      nameInput.classList.add('invalid');
-      valid = false;
-    } else {
-      nameInput.classList.remove('invalid');
-    }
+      nameInput.classList.add('invalid'); valid = false;
+    } else { nameInput.classList.remove('invalid'); }
 
     if (!phoneInput.value.trim() || !/^[0-9]{10}$/.test(phoneInput.value.trim())) {
-      phoneInput.classList.add('invalid');
-      valid = false;
-    } else {
-      phoneInput.classList.remove('invalid');
-    }
+      phoneInput.classList.add('invalid'); valid = false;
+    } else { phoneInput.classList.remove('invalid'); }
 
     if (!concernInput.value) {
-      concernInput.classList.add('invalid');
-      valid = false;
-    } else {
-      concernInput.classList.remove('invalid');
-    }
+      concernInput.classList.add('invalid'); valid = false;
+    } else { concernInput.classList.remove('invalid'); }
 
     if (!valid) return;
 
-    // Open the full modal, pre-filling available data
     openModal();
 
-    var apptName = document.getElementById('apptName');
-    var apptPhone = document.getElementById('apptPhone');
-    var apptConcern = document.getElementById('apptConcern');
-
-    if (apptName) apptName.value = nameInput.value.trim();
-    if (apptPhone) apptPhone.value = phoneInput.value.trim();
-    if (apptConcern) {
-      var options = apptConcern.querySelectorAll('option');
-      options.forEach(function (opt) {
-        if (opt.value === concernInput.value) {
-          apptConcern.value = opt.value;
-        }
-      });
-    }
+    // Pre-fill the full modal form
+    setTimeout(function () {
+      var apptName = document.getElementById('apptName');
+      var apptPhone = document.getElementById('apptPhone');
+      var apptConcern = document.getElementById('apptConcern');
+      if (apptName) apptName.value = nameInput.value.trim();
+      if (apptPhone) apptPhone.value = phoneInput.value.trim();
+      if (apptConcern) {
+        apptConcern.querySelectorAll('option').forEach(function (opt) {
+          if (opt.value === concernInput.value) apptConcern.value = opt.value;
+        });
+      }
+    }, 50);
   });
 
 
   /* ------------------------------------------
-     5. MOBILE NAV TOGGLE
+     5. MOBILE NAV — full overlay with scroll lock
      ------------------------------------------ */
   var navToggle = document.getElementById('navToggle');
   var mainNav = document.getElementById('mainNav');
+  var navOpen = false;
+
+  function openNav() {
+    navOpen = true;
+    navToggle.setAttribute('aria-expanded', 'true');
+    mainNav.classList.add('open');
+    document.body.classList.add('nav-open');
+    // Store scroll position
+    document.body.style.top = -window.pageYOffset + 'px';
+  }
+
+  function closeNav() {
+    if (!navOpen) return;
+    navOpen = false;
+    navToggle.setAttribute('aria-expanded', 'false');
+    mainNav.classList.remove('open');
+    // Restore scroll
+    var top = parseInt(document.body.style.top || '0', 10);
+    document.body.classList.remove('nav-open');
+    document.body.style.top = '';
+    window.scrollTo(0, Math.abs(top));
+  }
 
   navToggle.addEventListener('click', function () {
-    var expanded = navToggle.getAttribute('aria-expanded') === 'true';
-    navToggle.setAttribute('aria-expanded', !expanded);
-    mainNav.classList.toggle('open', !expanded);
+    if (navOpen) { closeNav(); } else { openNav(); }
   });
 
   // Close nav when clicking a link
   mainNav.querySelectorAll('.nav-link').forEach(function (link) {
-    link.addEventListener('click', function () {
-      navToggle.setAttribute('aria-expanded', 'false');
-      mainNav.classList.remove('open');
-    });
+    link.addEventListener('click', closeNav);
   });
+
+  // Close nav on outside click (tap on overlay area)
+  document.addEventListener('click', function (e) {
+    if (navOpen && !mainNav.contains(e.target) && !navToggle.contains(e.target)) {
+      closeNav();
+    }
+  });
+
+  // Close nav on back button / hash change
+  window.addEventListener('hashchange', closeNav);
 
 
   /* ------------------------------------------
@@ -399,4 +409,16 @@
 
   window.addEventListener('scroll', headerShadow, { passive: true });
   headerShadow();
+
+
+  /* ------------------------------------------
+     8. VIEWPORT HEIGHT FIX (iOS Safari)
+     Sets --vh custom property for true viewport height
+     ------------------------------------------ */
+  function setVH() {
+    var vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', vh + 'px');
+  }
+  setVH();
+  window.addEventListener('resize', setVH);
 })();
