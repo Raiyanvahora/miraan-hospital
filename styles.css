@@ -73,6 +73,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-h) + var(--sp-4));
   -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: contain;
 }
 
 body {
@@ -1573,4 +1574,245 @@ body.nav-open {
   /* Prevent iOS bounce */
   position: fixed;
   width: 100%;
+}
+
+
+/* ============================================
+   ENHANCED MOBILE RESPONSIVENESS
+   ============================================ */
+
+/* Prevent long words from overflowing containers */
+.hero-title,
+.section-title,
+.service-body h3,
+.why-item h3,
+.doctor-info h3,
+.card-heading {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Safe-area insets for notched/gesture-bar phones (landscape) */
+@supports (padding: env(safe-area-inset-left)) {
+  .header-inner,
+  .hero-inner {
+    padding-left: max(var(--sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--sp-4), env(safe-area-inset-right));
+  }
+  .main-nav.open {
+    padding-left: max(var(--sp-4), env(safe-area-inset-left));
+    padding-right: max(var(--sp-4), env(safe-area-inset-right));
+  }
+}
+
+
+/* ---- LANDSCAPE PHONES ---- */
+@media (max-height: 500px) and (orientation: landscape) {
+  .hero {
+    padding: calc(var(--header-h) + var(--sp-3)) 0 var(--sp-5);
+  }
+  .hero-inner {
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: var(--sp-4);
+  }
+  .hero-title {
+    font-size: var(--text-xl);
+  }
+  .hero-subtitle {
+    font-size: var(--text-xs);
+    margin-bottom: var(--sp-3);
+  }
+  .trust-row {
+    display: none;
+  }
+  .hero-wave svg {
+    height: 20px;
+  }
+  .quick-appt-card {
+    padding: var(--sp-3);
+  }
+  .card-heading {
+    font-size: var(--text-base);
+    margin-bottom: 0;
+  }
+  .card-sub {
+    display: none;
+  }
+  .card-divider {
+    margin: var(--sp-2) 0;
+  }
+  .quick-form {
+    gap: var(--sp-2);
+  }
+  .form-field input,
+  .form-field select {
+    padding: 0.5rem var(--sp-3);
+    min-height: 36px;
+  }
+  .btn {
+    padding: 0.5rem var(--sp-4);
+    min-height: 36px;
+    font-size: var(--text-xs);
+  }
+  .section-title {
+    font-size: var(--text-xl);
+  }
+  .services,
+  .departments,
+  .symptom-section,
+  .why-us,
+  .facility,
+  .about-doctor,
+  .contact-section {
+    padding: var(--sp-5) 0;
+  }
+  .modal-card {
+    max-height: 96vh;
+  }
+  .gallery-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .gallery-item.gallery-wide {
+    aspect-ratio: 16/6;
+  }
+}
+
+
+/* ---- INTERMEDIATE: LARGER PHONES (480px–639px) ---- */
+@media (min-width: 480px) and (max-width: 639px) {
+  .hero-title {
+    font-size: var(--text-3xl);
+  }
+  .services-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .service-featured {
+    grid-column: 1 / -1;
+  }
+  .why-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dept-content {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .contact-split {
+    grid-template-columns: 1fr;
+  }
+  .doctor-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ---- IMPROVED TINY SCREENS (<360px) ---- */
+@media (max-width: 359px) {
+  .hero-subtitle {
+    font-size: var(--text-xs);
+  }
+  .trust-badge {
+    font-size: 0.65rem;
+    padding: var(--sp-1) var(--sp-2);
+  }
+  .service-body {
+    padding: var(--sp-3);
+  }
+  .service-body h3 {
+    font-size: var(--text-sm);
+  }
+  .service-body p {
+    font-size: var(--text-xs);
+  }
+  .service-img {
+    height: 130px;
+  }
+  .why-item h3 {
+    font-size: var(--text-xs);
+  }
+  .why-item p {
+    font-size: 0.65rem;
+  }
+  .why-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .why-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .doctor-info h3 {
+    font-size: var(--text-base);
+  }
+  .symptom-btn {
+    font-size: var(--text-xs);
+    padding: var(--sp-2) var(--sp-3);
+    min-height: 40px;
+  }
+  .fab {
+    width: 46px;
+    height: 46px;
+  }
+  .modal-card {
+    padding: var(--sp-4) var(--sp-3) var(--sp-5);
+  }
+  #modalTitle {
+    font-size: var(--text-base);
+  }
+  .footer-tagline {
+    font-size: var(--text-xs);
+  }
+  .dept-tab {
+    font-size: var(--text-xs);
+    padding: var(--sp-2) var(--sp-3);
+    min-height: 40px;
+  }
+}
+
+
+/* ---- LARGE TABLETS & SMALL LAPTOPS (1024px–1200px) ---- */
+@media (min-width: 1024px) {
+  .hero-inner {
+    gap: var(--sp-9);
+  }
+  .services-grid {
+    gap: var(--sp-5);
+  }
+  .gallery-grid {
+    gap: var(--sp-5);
+  }
+}
+
+
+/* ---- TOUCH DEVICE IMPROVEMENTS ---- */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover transforms on touch — prevents sticky hover states */
+  .service-featured:hover,
+  .service-medium:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-primary:hover,
+  .btn-call:hover {
+    transform: none;
+    box-shadow: none;
+  }
+  .fab:hover {
+    transform: none;
+    box-shadow: var(--shadow-lg);
+  }
+  .gallery-item:hover img {
+    transform: none;
+  }
+  /* Better active/tap feedback instead */
+  .service-featured:active,
+  .service-medium:active {
+    box-shadow: var(--shadow-md);
+    transform: scale(0.99);
+  }
+  .gallery-item:active img {
+    transform: scale(1.03);
+  }
 }
