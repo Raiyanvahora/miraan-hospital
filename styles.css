@@ -245,6 +245,14 @@ input, select, textarea {
 
 .logo-icon { flex-shrink: 0; }
 
+.logo-img {
+  height: 38px;
+  width: auto;
+  flex-shrink: 0;
+  border-radius: var(--radius-xs);
+  object-fit: contain;
+}
+
 .logo-text {
   display: flex;
   flex-direction: column;
